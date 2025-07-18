@@ -1,38 +1,102 @@
-import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import {
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { mbtiTypes } from '../../data/mbtiData';
 
+
+const screenWidth = Dimensions.get('window').width;
+const CARD_MARGIN = 12;
+const NUM_COLUMNS = 2;
+const cardWidth = (screenWidth - CARD_MARGIN * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
+
+const groupOrder = ['Strażnicy (SJ)', 'Dyplomaci (NF)', 'Analitycy (NT)', 'Rzemieślnicy (SP)'];
+
+const groupedMbti = groupOrder.map((groupName) => ({
+  name: groupName,
+  items: mbtiTypes.filter((m) => m.communicationGroup === groupName),
+}));
+
 export default function MbtiListScreen() {
+  const router = useRouter();
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {mbtiTypes.map(({ type, shortDesc }) => (
-        <Link key={type} href={`/mbti/${type}`} asChild>
-          <TouchableOpacity style={styles.card}>
-            <Text style={styles.type}>{type}</Text>
-            <Text style={styles.desc}>{shortDesc}</Text>
-          </TouchableOpacity>
-        </Link>
-      ))}
-    </ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.scroll}>
+        {groupedMbti.map(({ name, items }) => (
+          <View key={name} style={styles.groupContainer}>
+            <Text style={styles.groupTitle}>{name}</Text>
+            <View style={styles.cardsContainer}>
+              {items.map(({ type, shortDesc, backgroundColor }) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.card, { backgroundColor: backgroundColor || '#444', width: cardWidth }]}
+                  onPress={() => router.push(`/mbti/${type}`)}  // <- tutaj nawigacja
+                >
+                  <Text style={styles.type}>{type}</Text>
+                  <Text style={styles.desc}>{shortDesc}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5E1C9', // ciepły beż tła
+    paddingVertical: 40,
+  },
+  scroll: {
+    flex: 1,
+  },
+  groupContainer: {
+    marginBottom: 24,
+    paddingHorizontal: CARD_MARGIN,
+  },
+  groupTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#6B4F26', // ceglasty kolor tytułu grupy
+    marginBottom: 12,
+  },
+  cardsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   card: {
-    backgroundColor: '#222',
-    padding: 20,
-    marginBottom: 16,
-    borderRadius: 10,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: CARD_MARGIN,
+    minHeight: 120,
+    justifyContent: 'center',
+
+    backgroundColor: '#F9E2B3', // jasny musztardowy
+    shadowColor: '#C1440E',     // cień ceglasty
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
   type: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#4B2E05',  // ciemny brąz, ciepły i czytelny
+    marginBottom: 6,
   },
   desc: {
-    fontSize: 16,
-    color: '#ccc',
-    marginTop: 4,
+    fontSize: 14,
+    color: '#6B4F26', // cieplejszy brąz dla opisu
   },
 });

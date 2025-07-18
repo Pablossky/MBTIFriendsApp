@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Alert,
-  Button,
   FlatList,
   Image,
   SafeAreaView,
@@ -24,6 +23,8 @@ const HAIRS = [
   require('../../assets/avatarParts/hair2.png'),
 ];
 
+const STORAGE_FRIENDS_KEY = 'friends_list';
+
 export default function FriendsList() {
   const router = useRouter();
 
@@ -41,6 +42,34 @@ export default function FriendsList() {
   const [mbti, setMbti] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Ładowanie znajomych z AsyncStorage na start
+  useEffect(() => {
+    const loadFriends = async () => {
+      try {
+        const json = await AsyncStorage.getItem(STORAGE_FRIENDS_KEY);
+        if (json !== null) {
+          setFriends(JSON.parse(json));
+        }
+      } catch (e) {
+        Alert.alert('Błąd ładowania listy znajomych');
+      }
+    };
+    loadFriends();
+  }, []);
+
+  // Zapis znajomych do AsyncStorage za każdym razem gdy się zmieniają
+  useEffect(() => {
+    const saveFriends = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_FRIENDS_KEY, JSON.stringify(friends));
+      } catch (e) {
+        Alert.alert('Błąd zapisu listy znajomych');
+      }
+    };
+    saveFriends();
+  }, [friends]);
+
+  // Ładowanie awatarów dla znajomych (Twoja istniejąca logika)
   useEffect(() => {
     const loadAvatars = async () => {
       const newAvatars = {};
@@ -146,7 +175,12 @@ export default function FriendsList() {
 
         {!showAddPanel && (
           <View style={styles.addButtonWrapper}>
-            <Button title="Dodaj nowego znajomego" onPress={() => setShowAddPanel(true)} />
+            <TouchableOpacity
+              style={styles.addFriendButton}
+              onPress={() => setShowAddPanel(true)}
+            >
+              <Text style={styles.addFriendButtonText}>Dodaj nowego znajomego</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -165,16 +199,23 @@ export default function FriendsList() {
               onChangeText={setMbti}
               autoCapitalize="characters"
             />
-            <Button title="Dodaj znajomego" onPress={addFriend} />
-            <Button
-              title="Anuluj"
+            <TouchableOpacity
+              style={styles.addFriendButton}
+              onPress={addFriend}
+            >
+              <Text style={styles.addFriendButtonText}>Dodaj znajomego</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.addFriendButton, { backgroundColor: '#888', marginBottom: 0 }]}
               onPress={() => {
                 setShowAddPanel(false);
                 setName('');
                 setMbti('');
               }}
-              color="#888"
-            />
+            >
+              <Text style={[styles.addFriendButtonText, { color: '#eee' }]}>Anuluj</Text>
+            </TouchableOpacity>
           </>
         )}
       </View>
@@ -183,19 +224,27 @@ export default function FriendsList() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
+  safeArea: { flex: 1, backgroundColor: '#F5E1C9' },  // ciepły beż
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    paddingVertical: 32,
+    paddingHorizontal: 20,
+    backgroundColor: '#F5E1C9',
   },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#C1440E',        // ceglasty tytuł
+  },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#D9A441',  // musztardowy obramowanie
     padding: 10,
     marginBottom: 10,
     borderRadius: 6,
+    backgroundColor: '#fff9e6', // bardzo jasny musztardowy jako tło inputa
+    color: '#444',
   },
   friendItem: {
     flexDirection: 'row',
@@ -203,7 +252,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#D9A441',
   },
   avatarContainer: {
     width: 40,
@@ -216,15 +265,31 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  friendText: { fontSize: 18, flex: 1 },
+  friendText: {
+    fontSize: 18,
+    flex: 1,
+    color: '#4B2E05',          // ciemny brąz tekstu
+  },
   deleteBtn: {
-    backgroundColor: '#ff5555',
+    backgroundColor: '#C1440E',  // ceglasty przycisk usuń
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
     marginLeft: 10,
   },
   addButtonWrapper: {
-    marginBottom: 20,  // podnosi trochę przycisk do góry
+    marginBottom: 20,
+  },
+  addFriendButton: {
+    backgroundColor: '#C1440E',  // ceglasty kolor
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addFriendButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
