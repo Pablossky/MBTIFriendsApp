@@ -12,6 +12,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Ruch Bezpośredni',
     communicationGroup: 'Strażnicy (SJ)',
     stats: { ie: 0.85, ns: 0.2, tf: 0.75, jp: 0.8 },
+    functions: ['si', 'te'],
   },
   {
     type: 'ISFJ',
@@ -26,6 +27,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Kontrola Informujący',
     communicationGroup: 'Strażnicy (SJ)',
     stats: { ie: 0.85, ns: 0.2, tf: 0.25, jp: 0.8 },
+    functions: ['si', 'fe'],
   },
   {
     type: 'INFJ',
@@ -40,6 +42,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Ruch Bezpośredni',
     communicationGroup: 'Dyplomaci (NF)',
     stats: { ie: 0.85, ns: 0.8, tf: 0.25, jp: 0.8 },
+     functions: ['ni', 'fe'],
   },
   {
     type: 'INTJ',
@@ -54,6 +57,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Ruch Bezpośredni',
     communicationGroup: 'Analitycy (NT)',
     stats: { ie: 0.85, ns: 0.8, tf: 0.75, jp: 0.8 },
+    functions: ['ni', 'te'],
   },
   {
     type: 'ISTP',
@@ -68,6 +72,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Ruch Bezpośredni',
     communicationGroup: 'Rzemieślnicy (SP)',
     stats: { ie: 0.85, ns: 0.2, tf: 0.75, jp: 0.2 },
+    functions: ['ti', 'se'],
   },
   {
     type: 'ISFP',
@@ -82,6 +87,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Kontrola Informujący',
     communicationGroup: 'Rzemieślnicy (SP)',
     stats: { ie: 0.85, ns: 0.2, tf: 0.25, jp: 0.2 },
+    functions: ['fi', 'se'],
   },
   {
     type: 'INFP',
@@ -96,6 +102,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Kontrola Informujący',
     communicationGroup: 'Dyplomaci (NF)',
     stats: { ie: 0.85, ns: 0.8, tf: 0.25, jp: 0.2 },
+    functions: ['fi', 'ne'],
   },
   {
     type: 'INTP',
@@ -110,6 +117,7 @@ export const mbtiTypes = [
     communicationStyle: 'Odpowiadający Kontrola Informujący',
     communicationGroup: 'Analitycy (NT)',
     stats: { ie: 0.85, ns: 0.8, tf: 0.75, jp: 0.2 },
+    functions: ['ti', 'ne'],
   },
   {
     type: 'ESTP',
@@ -124,6 +132,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Kontrola Bezpośredni',
     communicationGroup: 'Rzemieślnicy (SP)',
     stats: { ie: 0.15, ns: 0.2, tf: 0.75, jp: 0.2 },
+    functions: ['se', 'ti'],
   },
   {
     type: 'ESFP',
@@ -138,6 +147,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Ruch Informujący',
     communicationGroup: 'Rzemieślnicy (SP)',
     stats: { ie: 0.15, ns: 0.2, tf: 0.25, jp: 0.2 },
+    functions: ['se', 'fi'],
   },
   {
     type: 'ENFP',
@@ -152,6 +162,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Ruch Informujący',
     communicationGroup: 'Dyplomaci (NF)',
     stats: { ie: 0.15, ns: 0.8, tf: 0.25, jp: 0.2 },
+    functions: ['ne', 'fi'],
   },
   {
     type: 'ENTP',
@@ -166,6 +177,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Ruch Informujący',
     communicationGroup: 'Analitycy (NT)',
     stats: { ie: 0.15, ns: 0.8, tf: 0.75, jp: 0.2 },
+    functions: ['ne', 'ti'],
   },
   {
     type: 'ESTJ',
@@ -180,6 +192,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Kontrola Bezpośredni',
     communicationGroup: 'Strażnicy (SJ)',
     stats: { ie: 0.15, ns: 0.2, tf: 0.75, jp: 0.8 },
+    functions: ['te', 'si'],
   },
   {
     type: 'ESFJ',
@@ -194,6 +207,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Ruch Informujący',
     communicationGroup: 'Strażnicy (SJ)',
     stats: { ie: 0.15, ns: 0.2, tf: 0.25, jp: 0.8 },
+    functions: ['fe', 'si'],
   },
   {
     type: 'ENFJ',
@@ -208,6 +222,7 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Kontrola Bezpośredni',
     communicationGroup: 'Dyplomaci (NF)',
     stats: { ie: 0.15, ns: 0.8, tf: 0.25, jp: 0.8 },
+    functions: ['fe', 'ni'],
   },
   {
     type: 'ENTJ',
@@ -222,5 +237,6 @@ export const mbtiTypes = [
     communicationStyle: 'Inicjujący Kontrola Bezpośredni',
     communicationGroup: 'Analitycy (NT)',
     stats: { ie: 0.15, ns: 0.8, tf: 0.75, jp: 0.8 },
+    functions: ['te', 'ni'],
   },
 ];

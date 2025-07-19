@@ -27,6 +27,11 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </Link>
 
+          <Link href="/cognitivefunctions" asChild>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Funkcje poznawcze</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       </View>
     </SafeAreaView>

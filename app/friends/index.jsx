@@ -13,15 +13,12 @@ import {
   View,
 } from 'react-native';
 
-const HEADS = [
-  require('../../assets/avatarParts/head1.png'),
-  require('../../assets/avatarParts/head2.png'),
-];
-
-const HAIRS = [
-  require('../../assets/avatarParts/hair1.png'),
-  require('../../assets/avatarParts/hair2.png'),
-];
+import { BROWS } from '../../assets/avatarParts/browsData';
+import { EYES } from '../../assets/avatarParts/eyesData';
+import { HAIRSTYLES } from '../../assets/avatarParts/hairData';
+import { HEADS } from '../../assets/avatarParts/headData';
+import { MOUTHS } from '../../assets/avatarParts/mouthData';
+import { NOSES } from '../../assets/avatarParts/noseData';
 
 const STORAGE_FRIENDS_KEY = 'friends_list';
 
@@ -36,7 +33,7 @@ export default function FriendsList() {
     { id: '2', name: 'Anna', mbti: 'ENTJ' },
   ]);
 
-  const [avatars, setAvatars] = useState({}); // { [id]: {headIndex, hairIndex} }
+  const [avatars, setAvatars] = useState({}); // { [id]: {headIndex, selectedHairStyle, selectedHairColor, eyeIndex, browIndex, noseIndex, mouthIndex} }
 
   const [name, setName] = useState('');
   const [mbti, setMbti] = useState('');
@@ -69,20 +66,37 @@ export default function FriendsList() {
     saveFriends();
   }, [friends]);
 
-  // Ładowanie awatarów dla znajomych (Twoja istniejąca logika)
+  // Ładowanie awatarów dla znajomych zgodnie z AvatarEditor
   useEffect(() => {
     const loadAvatars = async () => {
       const newAvatars = {};
       for (const friend of friends) {
         try {
-          const json = await AsyncStorage.getItem(`friend_avatar_${friend.id}`);
+          const json = await AsyncStorage.getItem(`@friend_avatar_${friend.id}`);
           if (json) {
             newAvatars[friend.id] = JSON.parse(json);
           } else {
-            newAvatars[friend.id] = { headIndex: 0, hairIndex: 0 };
+            // Domyślne wartości pasujące do AvatarEditor
+            newAvatars[friend.id] = {
+              headIndex: 0,
+              selectedHairStyle: 0,
+              selectedHairColor: 0,
+              eyeIndex: 0,
+              browIndex: 0,
+              noseIndex: 0,
+              mouthIndex: 0,
+            };
           }
         } catch {
-          newAvatars[friend.id] = { headIndex: 0, hairIndex: 0 };
+          newAvatars[friend.id] = {
+            headIndex: 0,
+            selectedHairStyle: 0,
+            selectedHairColor: 0,
+            eyeIndex: 0,
+            browIndex: 0,
+            noseIndex: 0,
+            mouthIndex: 0,
+          };
         }
       }
       setAvatars(newAvatars);
@@ -132,7 +146,14 @@ export default function FriendsList() {
     return (
       <View style={styles.avatarContainer}>
         <Image source={HEADS[avatar.headIndex]} style={styles.avatarLayer} />
-        <Image source={HAIRS[avatar.hairIndex]} style={styles.avatarLayer} />
+        <Image
+          source={HAIRSTYLES[avatar.selectedHairStyle]?.colors[avatar.selectedHairColor]}
+          style={styles.avatarLayer}
+        />
+        <Image source={EYES[avatar.eyeIndex]} style={styles.avatarLayer} />
+        <Image source={BROWS[avatar.browIndex]} style={styles.avatarLayer} />
+        <Image source={NOSES[avatar.noseIndex]} style={styles.avatarLayer} />
+        <Image source={MOUTHS[avatar.mouthIndex]} style={styles.avatarLayer} />
       </View>
     );
   };
@@ -199,10 +220,7 @@ export default function FriendsList() {
               onChangeText={setMbti}
               autoCapitalize="characters"
             />
-            <TouchableOpacity
-              style={styles.addFriendButton}
-              onPress={addFriend}
-            >
+            <TouchableOpacity style={styles.addFriendButton} onPress={addFriend}>
               <Text style={styles.addFriendButtonText}>Dodaj znajomego</Text>
             </TouchableOpacity>
 
@@ -224,7 +242,7 @@ export default function FriendsList() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F5E1C9' },  // ciepły beż
+  safeArea: { flex: 1, backgroundColor: '#F5E1C9' }, // ciepły beż
   container: {
     flex: 1,
     paddingVertical: 32,
@@ -235,11 +253,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#C1440E',        // ceglasty tytuł
+    color: '#C1440E', // ceglasty tytuł
   },
   input: {
     borderWidth: 1,
-    borderColor: '#D9A441',  // musztardowy obramowanie
+    borderColor: '#D9A441', // musztardowy obramowanie
     padding: 10,
     marginBottom: 10,
     borderRadius: 6,
@@ -268,10 +286,10 @@ const styles = StyleSheet.create({
   friendText: {
     fontSize: 18,
     flex: 1,
-    color: '#4B2E05',          // ciemny brąz tekstu
+    color: '#4B2E05', // ciemny brąz tekstu
   },
   deleteBtn: {
-    backgroundColor: '#C1440E',  // ceglasty przycisk usuń
+    backgroundColor: '#C1440E', // ceglasty przycisk usuń
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
@@ -281,7 +299,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   addFriendButton: {
-    backgroundColor: '#C1440E',  // ceglasty kolor
+    backgroundColor: '#C1440E', // ceglasty kolor
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -12,31 +12,39 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { cognitiveFunctions } from '../../data/functionsData';
 import { mbtiTypes } from '../../data/mbtiData';
 
 const STORAGE_FRIENDS_KEY = 'friends_list';
 
-const HEADS = [
-  require('../../assets/avatarParts/head1.png'),
-  require('../../assets/avatarParts/head2.png'),
-];
-
-const HAIRS = [
-  require('../../assets/avatarParts/hair1.png'),
-  require('../../assets/avatarParts/hair2.png'),
-];
+import { BROWS } from '../../assets/avatarParts/browsData';
+import { EYES } from '../../assets/avatarParts/eyesData';
+import { HAIRSTYLES } from '../../assets/avatarParts/hairData';
+import { HEADS } from '../../assets/avatarParts/headData';
+import { MOUTHS } from '../../assets/avatarParts/mouthData';
+import { NOSES } from '../../assets/avatarParts/noseData';
 
 export default function FriendProfile() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const friendId = params.id;
 
+  const defaultAvatar = {
+    headIndex: 0,
+    selectedHairStyle: 0,
+    selectedHairColor: 0,
+    eyeIndex: 0,
+    browIndex: 0,
+    noseIndex: 0,
+    mouthIndex: 0,
+  };
+
   const [friend, setFriend] = useState(null);
-  const [avatars, setAvatars] = useState({ headIndex: 0, hairIndex: 0 });
+  const [avatars, setAvatars] = useState(defaultAvatar);
   const [notes, setNotes] = useState('');
   const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [editingType, setEditingType] = useState(false);  // nowy stan edycji typu
+  const [editingType, setEditingType] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,9 +59,20 @@ export default function FriendProfile() {
         }
         setFriend(f);
 
-        const avatarJson = await AsyncStorage.getItem(`friend_avatar_${friendId}`);
+        const avatarJson = await AsyncStorage.getItem(`@friend_avatar_${friendId}`);
         if (avatarJson) {
-          setAvatars(JSON.parse(avatarJson));
+          const parsed = JSON.parse(avatarJson);
+          setAvatars({
+            headIndex: parsed.headIndex ?? 0,
+            selectedHairStyle: parsed.selectedHairStyle ?? 0,
+            selectedHairColor: parsed.selectedHairColor ?? 0,
+            eyeIndex: parsed.eyeIndex ?? 0,
+            browIndex: parsed.browIndex ?? 0,
+            noseIndex: parsed.noseIndex ?? 0,
+            mouthIndex: parsed.mouthIndex ?? 0,
+          });
+        } else {
+          setAvatars(defaultAvatar);
         }
 
         const notesJson = await AsyncStorage.getItem(`friend_notes_${friendId}`);
@@ -80,7 +99,6 @@ export default function FriendProfile() {
     }
   };
 
-  // Nowa funkcja do zapisu typu MBTI
   const saveType = async (newType) => {
     try {
       const friendsJson = await AsyncStorage.getItem(STORAGE_FRIENDS_KEY);
@@ -117,9 +135,6 @@ export default function FriendProfile() {
     );
   };
 
-
-
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: mbti?.backgroundColor || '#fff' }]}>
       <View style={styles.nameRow}>
@@ -147,7 +162,6 @@ export default function FriendProfile() {
           </Text>
         </TouchableOpacity>
       </View>
-
 
       {/* Edycja typu MBTI */}
       <View style={{ marginBottom: 20, alignItems: 'center' }}>
@@ -178,12 +192,18 @@ export default function FriendProfile() {
         )}
       </View>
 
+      {/* Awatar w okrągłym obramowaniu */}
       <TouchableOpacity
         style={styles.avatarPreview}
         onPress={() => router.push(`/friends/${friendId}/edit-avatar`)}
+        activeOpacity={0.8}
       >
         <Image source={HEADS[avatars.headIndex]} style={styles.layer} />
-        <Image source={HAIRS[avatars.hairIndex]} style={styles.layer} />
+        <Image source={HAIRSTYLES[avatars.selectedHairStyle]?.colors[avatars.selectedHairColor]} style={styles.layer} />
+        <Image source={EYES[avatars.eyeIndex]} style={styles.layer} />
+        <Image source={BROWS[avatars.browIndex]} style={styles.layer} />
+        <Image source={NOSES[avatars.noseIndex]} style={styles.layer} />
+        <Image source={MOUTHS[avatars.mouthIndex]} style={styles.layer} />
       </TouchableOpacity>
 
       <View style={{ marginTop: 20, width: '100%' }}>
@@ -209,20 +229,20 @@ export default function FriendProfile() {
             style={styles.cardContainer}
             contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 10 }}
           >
-            {/* Karta 1 – Mocne i słabe strony */}
+            {/* Mocne i słabe strony */}
             <View style={[styles.card, styles.centerContent]}>
-              <Text style={[styles.label, styles.centerText]}> Mocne strony</Text>
+              <Text style={[styles.label, styles.centerText]}>Mocne strony</Text>
               {mbti.strengths.map((s, i) => (
                 <Text key={i} style={[styles.listItem, styles.centerText]}>• {s}</Text>
               ))}
 
-              <Text style={[styles.label, styles.centerText, { marginTop: 15 }]}> Słabe strony</Text>
+              <Text style={[styles.label, styles.centerText, { marginTop: 15 }]}>Słabe strony</Text>
               {mbti.weaknesses.map((w, i) => (
                 <Text key={i} style={[styles.listItem, styles.centerText]}>• {w}</Text>
               ))}
             </View>
 
-            {/* Karta 2 – Komunikacja */}
+            {/* Komunikacja */}
             <View style={[styles.card, styles.centerContent]}>
               <Text style={[styles.label, styles.centerText]}>💬 Komunikacja</Text>
               <Text style={[styles.listItem, styles.centerText]}>Rola: {mbti.communicationRole || 'Brak danych'}</Text>
@@ -230,7 +250,7 @@ export default function FriendProfile() {
               <Text style={[styles.listItem, styles.centerText]}>Grupa: {mbti.communicationGroup || 'Brak danych'}</Text>
             </View>
 
-            {/* Karta 3 – Statystyki */}
+            {/* Statystyki */}
             <View style={styles.card}>
               <Text style={styles.label}>📊 Statystyki MBTI</Text>
               {renderBar('Introversion', 'Extraversion', mbti.stats?.ie ?? 0.7)}
@@ -239,6 +259,27 @@ export default function FriendProfile() {
               {renderBar('Judging', 'Perceiving', mbti.stats?.jp ?? 0.8)}
             </View>
 
+            {/* Funkcje poznawcze */}
+            <View style={[styles.card, styles.centerContent]}>
+              <Text style={[styles.label, styles.centerText]}>🧠 Funkcje poznawcze</Text>
+              {mbti.functions?.map((fnId, i) => {
+                const fn = cognitiveFunctions.find(f => f.id === fnId);
+                if (!fn) return null;
+
+                return (
+                  <Link key={fnId} href={`/cognitivefunctions/${fn.id}`} asChild>
+                    <TouchableOpacity style={{ marginTop: i > 0 ? 16 : 10 }}>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#5D4037', textAlign: 'center' }}>
+                        {fn.name}
+                      </Text>
+                      <Text style={{ fontSize: 14, color: '#555', textAlign: 'center', marginTop: 4 }}>
+                        {fn.description.slice(0, 100)}...
+                      </Text>
+                    </TouchableOpacity>
+                  </Link>
+                );
+              })}
+            </View>
           </ScrollView>
         </View>
       )}
@@ -247,7 +288,7 @@ export default function FriendProfile() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingVertical:42, backgroundColor: '#fff' },
+  container: { flex: 1, padding: 20, paddingVertical: 42, backgroundColor: '#fff' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   avatarPreview: {
     width: 128,
@@ -262,6 +303,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 128,
     height: 128,
+    resizeMode: 'contain',
   },
   label: {
     fontWeight: 'bold',
@@ -277,7 +319,7 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderWidth: 1,
     borderColor: '#ccc',
-    height: 75,           // zmniejszone z 100 na 75
+    height: 75,
     borderRadius: 6,
     padding: 10,
     textAlignVertical: 'top',
@@ -304,10 +346,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
     color: '#000',
   },
-  editHint: {
-    fontSize: 12,
-    color: '#666',
-  },
   mbtiList: {
     maxHeight: 250,
     borderWidth: 1,
@@ -320,15 +358,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  cardContainer: {        // trochę więcej odstępu od reszty
-    height: 280,   
-    marginTop: -20,       // podniesione z 220 na 280
+  cardContainer: {
+    height: 280,
+    marginTop: -20,
   },
   card: {
     alignSelf: 'center',
     width: 300,
     marginRight: 20,
-    padding: 16,          // zwiększone padding z 8
+    padding: 16,
     backgroundColor: '#fff',
     borderRadius: 16,
     elevation: 3,
@@ -336,15 +374,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    minHeight: 240,       // dodane minimum wysokości by pomieścić paski
+    minHeight: 240,
   },
   barBackground: {
     width: '100%',
-    height: 12,           // trochę wyższy pasek
+    height: 12,
     backgroundColor: '#ddd',
     borderRadius: 5,
     overflow: 'hidden',
-    marginTop: 10,        // większy odstęp od poprzedniego elementu
+    marginTop: 10,
   },
   barFill: {
     height: '100%',
@@ -361,9 +399,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-    genderSymbol: {
+  genderSymbol: {
     fontSize: 40,
     marginLeft: 8,
-    marginTop: -24,  // podnosi ikonę płci nieco wyżej
+    marginTop: -24,
   },
 });

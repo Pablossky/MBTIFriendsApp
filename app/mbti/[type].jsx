@@ -32,9 +32,6 @@ export default function MbtiTypeScreen() {
           <Text style={styles.listItem}>Styl komunikacji: {mbti?.communicationStyle || 'Brak danych'}</Text>
           <Text style={styles.listItem}>Grupa komunikacji: {mbti?.communicationGroup || 'Brak danych'}</Text>
 
-          <Text style={styles.text}>
-            Tutaj możesz dodać więcej informacji o typie {type}, jego cechach, mocnych stronach, idealnych zawodach itd.
-          </Text>
         </>
       ) : (
         <Text style={styles.text}>Nie wybrano typu MBTI.</Text>
@@ -61,7 +58,13 @@ export default function MbtiTypeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#111', justifyContent: 'space-between' },
+  container: { 
+    flex: 1,
+    padding: 20, 
+    backgroundColor: '#111', 
+    justifyContent: 'space-between', 
+    paddingVertical: 40,
+  },
   type: { fontSize: 32, fontWeight: 'bold', color: '#fff', marginBottom: 10 },
   desc: { fontSize: 20, marginBottom: 20, color: '#aaa' },
   subTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 10, color: '#eee' },

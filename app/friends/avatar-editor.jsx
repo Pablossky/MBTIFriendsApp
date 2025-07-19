@@ -1,161 +1,293 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const HEADS = [
-  require('../../assets/avatarParts/head1.png'),
-  require('../../assets/avatarParts/head2.png'),
-];
+import { BROWS } from '../../assets/avatarParts/browsData';
+import { EYES } from '../../assets/avatarParts/eyesData';
+import { HAIRSTYLES } from '../../assets/avatarParts/hairData';
+import { HEADS } from '../../assets/avatarParts/headData';
+import { MOUTHS } from '../../assets/avatarParts/mouthData';
+import { NOSES } from '../../assets/avatarParts/noseData';
 
-const HAIRS = [
-  require('../../assets/avatarParts/hair1.png'),
-  require('../../assets/avatarParts/hair2.png'),
-];
+const screenWidth = Dimensions.get('window').width;
+const STORAGE_KEY_PREFIX = '@friend_avatar_';
 
-export default function AvatarEditor({ friendId, initialAvatar = null, onAvatarChange }) {
-  const STORAGE_KEY = `friend_avatar_${friendId}`;
-
-  const [headIndex, setHeadIndex] = useState(initialAvatar?.headIndex ?? 0);
-  const [hairIndex, setHairIndex] = useState(initialAvatar?.hairIndex ?? 0);
-  const [loading, setLoading] = useState(true);
+export default function AvatarEditor({ friendId, onAvatarChange }) {
+  const [headIndex, setHeadIndex] = useState(0);
+  const [selectedHairStyle, setSelectedHairStyle] = useState(0);
+  const [selectedHairColor, setSelectedHairColor] = useState(0);
+  const [eyeIndex, setEyeIndex] = useState(0);
+  const [browIndex, setBrowIndex] = useState(0);
+  const [noseIndex, setNoseIndex] = useState(0);
+  const [mouthIndex, setMouthIndex] = useState(0);
 
   useEffect(() => {
-    const loadAvatar = async () => {
-      try {
-        const json = await AsyncStorage.getItem(STORAGE_KEY);
-        if (json) {
-          const data = JSON.parse(json);
-          setHeadIndex(data.headIndex ?? 0);
-          setHairIndex(data.hairIndex ?? 0);
-          if (onAvatarChange) onAvatarChange(data);
-        } else if (initialAvatar) {
-          setHeadIndex(initialAvatar.headIndex);
-          setHairIndex(initialAvatar.hairIndex);
-        }
-      } catch (e) {
-        Alert.alert('Błąd ładowania awatara');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!friendId) return;
+    console.log('Ładuję awatar dla friendId:', friendId);
     loadAvatar();
-  }, [STORAGE_KEY]);
+  }, [friendId]);
 
   const saveAvatar = async () => {
     try {
-      const data = { headIndex, hairIndex };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      if (onAvatarChange) onAvatarChange(data);
-      Alert.alert('Awatar zapisany');
+      const data = {
+        headIndex,
+        selectedHairStyle,
+        selectedHairColor,
+        eyeIndex,
+        browIndex,
+        noseIndex,
+        mouthIndex,
+      };
+      const key = `${STORAGE_KEY_PREFIX}${friendId}`;
+      await AsyncStorage.setItem(key, JSON.stringify(data));
+      onAvatarChange?.(data);
+      Alert.alert('Awatar zapisany!');
     } catch (e) {
       Alert.alert('Błąd zapisu awatara');
+      console.error(e);
     }
   };
 
-  if (loading) return <Text style={{ padding: 20 }}>Ładowanie awatara...</Text>;
+  const loadAvatar = async () => {
+    try {
+      const key = `${STORAGE_KEY_PREFIX}${friendId}`;
+      const data = await AsyncStorage.getItem(key);
+      if (data) {
+        const parsed = JSON.parse(data);
+        setHeadIndex(parsed.headIndex ?? 0);
+        setSelectedHairStyle(parsed.selectedHairStyle ?? 0);
+        setSelectedHairColor(parsed.selectedHairColor ?? 0);
+        setEyeIndex(parsed.eyeIndex ?? 0);
+        setBrowIndex(parsed.browIndex ?? 0);
+        setNoseIndex(parsed.noseIndex ?? 0);
+        setMouthIndex(parsed.mouthIndex ?? 0);
+      }
+    } catch (e) {
+      Alert.alert('Błąd ładowania awatara');
+      console.error(e);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>Edytor awatara (128x128)</Text>
-
+    <View style={styles.container}>
       <View style={styles.avatarPreview}>
         <Image source={HEADS[headIndex]} style={styles.layer} />
-        <Image source={HAIRS[hairIndex]} style={styles.layer} />
+        <Image source={HAIRSTYLES[selectedHairStyle]?.colors[selectedHairColor]} style={styles.layer} />
+        <Image source={EYES[eyeIndex]} style={styles.layer} />
+        <Image source={BROWS[browIndex]} style={styles.layer} />
+        <Image source={NOSES[noseIndex]} style={styles.layer} />
+        <Image source={MOUTHS[mouthIndex]} style={styles.layer} />
       </View>
 
-      <Text style={styles.label}>Kształt głowy:</Text>
-      <View style={styles.optionsRow}>
-        {HEADS.map((img, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => setHeadIndex(i)}
-            style={[styles.optionButton, headIndex === i && styles.selectedOption]}
-          >
-            <Image source={img} style={styles.optionImage} />
-          </TouchableOpacity>
-        ))}
+      <View style={styles.cardBackground}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+        >
+          {/* GŁOWA */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Głowa</Text>
+            <View style={styles.optionsRow}>
+              {HEADS.map((h, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setHeadIndex(i)}
+                  style={[styles.optionButton, headIndex === i && styles.selected]}
+                >
+                  <Image source={h} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* FRYZURA */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Fryzura</Text>
+            <View style={styles.optionsRow}>
+              {HAIRSTYLES.map((h, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => {
+                    setSelectedHairStyle(i);
+                    setSelectedHairColor(0);
+                  }}
+                  style={[styles.optionButton, selectedHairStyle === i && styles.selected]}
+                >
+                  <Image source={h.preview} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.label}>Kolor włosów</Text>
+            <View style={styles.optionsRow}>
+              {HAIRSTYLES[selectedHairStyle]?.colors.map((c, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setSelectedHairColor(i)}
+                  style={[styles.optionButton, selectedHairColor === i && styles.selected]}
+                >
+                  <Image source={c} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* OCZY */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Oczy</Text>
+            <View style={styles.optionsRow}>
+              {EYES.map((img, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setEyeIndex(i)}
+                  style={[styles.optionButton, eyeIndex === i && styles.selected]}
+                >
+                  <Image source={img} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* BRWI */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Brwi</Text>
+            <View style={styles.optionsRow}>
+              {BROWS.map((img, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setBrowIndex(i)}
+                  style={[styles.optionButton, browIndex === i && styles.selected]}
+                >
+                  <Image source={img} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* NOS */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Nos</Text>
+            <View style={styles.optionsRow}>
+              {NOSES.map((img, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setNoseIndex(i)}
+                  style={[styles.optionButton, noseIndex === i && styles.selected]}
+                >
+                  <Image source={img} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* USTA */}
+          <View style={styles.page}>
+            <Text style={styles.label}>Usta</Text>
+            <View style={styles.optionsRow}>
+              {MOUTHS.map((img, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setMouthIndex(i)}
+                  style={[styles.optionButton, mouthIndex === i && styles.selected]}
+                >
+                  <Image source={img} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
       </View>
 
-      <Text style={styles.label}>Włosy:</Text>
-      <View style={styles.optionsRow}>
-        {HAIRS.map((img, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => setHairIndex(i)}
-            style={[styles.optionButton, hairIndex === i && styles.selectedOption]}
-          >
-            <Image source={img} style={styles.optionImage} />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <TouchableOpacity style={styles.saveButton} onPress={saveAvatar}>
-        <Text style={styles.saveButtonText}>Zapisz awatar</Text>
+      <TouchableOpacity onPress={saveAvatar} style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>Zapisz Awatar</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    alignItems: 'center',
+    paddingBottom: 60,
+    paddingVertical: 60,
+    backgroundColor: '#F5E1C9', // ciepły beż tła
+    flex: 1,
   },
-  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 20 },
   avatarPreview: {
-    width: 128,
-    height: 128,
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
     marginBottom: 20,
-    position: 'relative',
   },
   layer: {
     position: 'absolute',
-    width: 128,
-    height: 128,
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
   },
   label: {
     fontWeight: 'bold',
-    fontSize: 18,
-    alignSelf: 'flex-start',
-    marginBottom: 10,
+    marginLeft: 10,
+    marginTop: 10,
+    fontSize: 16,
+    color: '#8B4513', // rdzawy brąz - spójny z buttonami
   },
   optionsRow: {
     flexDirection: 'row',
-    marginBottom: 15,
+    flexWrap: 'wrap',
+    marginHorizontal: 0,    // Usuń margin, albo zredukuj do 0 lub bardzo małego
+    paddingHorizontal: 10,  // Jeśli chcesz odstęp, daj padding do środka
   },
   optionButton: {
-    borderWidth: 1,
-    borderColor: '#999',
+    margin: 4,
+    padding: 2,
     borderRadius: 8,
-    marginRight: 10,
-    padding: 3,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: '#D9A441', // musztardowy, jasne tło dla opcji
   },
-  selectedOption: {
-    borderColor: '#4682B4',
-    backgroundColor: '#d0e4ff',
+  selected: {
+    borderColor: '#C1440E', // ceglany akcent na obramowaniu
+    backgroundColor: '#8B4513', // rdzawy brąz na zaznaczone
   },
   optionImage: {
     width: 50,
     height: 50,
+    resizeMode: 'contain',
   },
   saveButton: {
-    marginTop: 30,
-    backgroundColor: '#4682B4',
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 10,
+    backgroundColor: '#8B4513', // rdzawy brąz zgodny z buttonem z drugiego stylu
+    padding: 12,
+    marginTop: 20,
+    borderRadius: 12,
+    alignSelf: 'center',
+    shadowColor: '#6B3E07', // cień ciepły
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 7,
   },
   saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#F5E1C9', // jasny tekst na ciemnym tle
+    fontWeight: '600',
+    textAlign: 'center',
     fontSize: 18,
+  },
+  page: {
+    width: screenWidth,
+    paddingVertical: 10,
+  },
+
+  cardBackground: {
+    backgroundColor: '#F5E1C9', // ciepłe tło karty
+    borderRadius: 16,
+    paddingVertical: 10,
+    // iOS shadow
+    shadowColor: '#6B3E07',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // Android shadow
+    elevation: 7,
   },
 });
