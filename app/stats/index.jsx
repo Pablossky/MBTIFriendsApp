@@ -1,12 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
-    Dimensions,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 
@@ -62,7 +62,14 @@ export default function StatsScreen() {
     loadStats();
   }, []);
 
-  if (loading) return <Text style={{ padding: 20 }}>Ładowanie statystyk...</Text>;
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ padding: 20 }}>Ładowanie statystyk...</Text>
+      </SafeAreaView>
+    );
+  }
+
 
   const chartWidth = Dimensions.get('window').width - 64;
 
@@ -90,10 +97,14 @@ export default function StatsScreen() {
       )}
       {/* Lista legendy */}
       <View style={{ marginTop: 16 }}>
-        {data.map(item => (
-          <View style={styles.legendRow} key={item.name}>
-            <View style={[styles.colorBox, { backgroundColor: item.color }]} />
-            <Text>{`${item.name}: ${item.population} (${item.percentage}%)`}</Text>
+        {data.map((item, idx) => (
+          <View style={styles.legendRow} key={item.name || `legend-${idx}`}>
+            <View style={[styles.colorBox, { backgroundColor: item.color || '#ccc' }]} />
+            <Text>
+              {item.name
+                ? `${item.name}: ${item.population} (${item.percentage}%)`
+                : 'Brak nazwy'}
+            </Text>
           </View>
         ))}
       </View>

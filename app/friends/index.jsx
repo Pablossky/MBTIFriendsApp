@@ -165,8 +165,9 @@ export default function FriendsList() {
     >
       {renderAvatar(item.id)}
       <Text style={styles.friendText}>
-        {item.name} — {item.mbti}
+        {`${item?.name || 'Nieznany'} - ${item?.mbti || 'Brak typu'}`}
       </Text>
+
       <TouchableOpacity onPress={() => deleteFriend(item.id)} style={styles.deleteBtn}>
         <Text style={{ color: 'white' }}>Usuń</Text>
       </TouchableOpacity>

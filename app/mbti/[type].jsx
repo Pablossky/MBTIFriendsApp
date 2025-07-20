@@ -5,7 +5,7 @@ import { mbtiTypes } from '../../data/mbtiData';
 export default function MbtiTypeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const type = params.type;
+  const type = Array.isArray(params.type) ? params.type[0] : params.type;
 
   const mbti = mbtiTypes.find(m => m.type === type);
   const btnColor = mbti?.backgroundColor || '#4682B4';

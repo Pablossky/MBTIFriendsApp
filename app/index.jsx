@@ -1,11 +1,31 @@
 import { Link } from 'expo-router';
-import { SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+const { width } = Dimensions.get('window');
+const LOGO_SIZE = width * 0.3; // 30% szerokości ekranu
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" /> {/* lepszy kontrast na jasnym tle */}
+      <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
+
+        {/* Logo */}
+        <Image
+          source={require('../assets/images/icon.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
         <Text style={styles.title}>Witaj w MBTI Friends!</Text>
 
         <View style={styles.buttonsContainer}>
@@ -48,6 +68,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: 'center',
+    alignItems: 'center', // wyśrodkowanie logo i tekstów poziomo
+  },
+  logo: {
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
@@ -64,6 +90,7 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     marginTop: 10,
+    width: '100%', // aby przyciski rozciągały się na całą szerokość kontenera
   },
   button: {
     backgroundColor: '#8B4513', // rdzawy brąz
