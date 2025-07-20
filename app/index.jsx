@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const LOGO_SIZE = width * 0.3; // 30% szerokości ekranu
+const LOGO_SIZE = width * 0.5; // 30% szerokości ekranu
 
 export default function HomeScreen() {
   return (
@@ -74,13 +74,20 @@ const styles = StyleSheet.create({
     width: LOGO_SIZE,
     height: LOGO_SIZE,
     marginBottom: 20,
+    
+    shadowColor: '#6B3E07', // cień w ciepłym odcieniu
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 7,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#C1440E', // ceglany
-    marginBottom: 10,
+    color: '#8B4513', // ceglany
+    marginBottom: 60,
     textAlign: 'center',
+    
   },
   subtitle: {
     fontSize: 18,

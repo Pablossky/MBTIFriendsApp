@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
@@ -16,6 +17,8 @@ import { cognitiveFunctions } from '../../data/functionsData';
 import { mbtiTypes } from '../../data/mbtiData';
 
 const STORAGE_FRIENDS_KEY = 'friends_list';
+const screenWidth = Dimensions.get('window').width;
+
 
 import { BROWS } from '../../assets/avatarParts/browsData';
 import { EYES } from '../../assets/avatarParts/eyesData';
@@ -45,6 +48,10 @@ export default function FriendProfile() {
   const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
   const [editingType, setEditingType] = useState(false);
+
+  // Nowy stan do śledzenia aktywnej karty
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -116,12 +123,21 @@ export default function FriendProfile() {
     }
   };
 
+  // Handler onScroll do aktualizacji activeIndex
+  const onScroll = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / screenWidth);
+    if (newIndex !== activeIndex) setActiveIndex(newIndex);
+  };
+
   if (loading) return <Text style={{ padding: 20 }}>Ładowanie profilu...</Text>;
 
   const mbti = mbtiTypes.find(m => m.type === friend.mbti);
 
-  const renderBar = (leftLabel, rightLabel, value) => {
+  const renderBar = (leftLabel, rightLabel, value, baseColor = '#4a90e2') => {
     const percentage = Math.round(value * 100);
+    const fillColor = darkenColor(baseColor, 0.3);
+
     return (
       <View style={{ marginVertical: 5 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
@@ -129,11 +145,39 @@ export default function FriendProfile() {
           <Text style={styles.listItem}>{rightLabel}</Text>
         </View>
         <View style={styles.barBackground}>
-          <View style={[styles.barFill, { width: `${percentage}%` }]} />
+          <View style={[styles.barFill, { width: `${percentage}%`, backgroundColor: fillColor }]} />
         </View>
       </View>
     );
   };
+
+  // Dodaj funkcję darkenColor przed komponentem
+  function darkenColor(hexColor, amount = 0.3) {
+    // hexColor w formacie '#rrggbb'
+    let color = hexColor.replace('#', '');
+    if (color.length === 3) {
+      // zamień 'abc' na 'aabbcc'
+      color = color.split('').map(c => c + c).join('');
+    }
+    const num = parseInt(color, 16);
+
+    let r = (num >> 16) & 0xFF;
+    let g = (num >> 8) & 0xFF;
+    let b = num & 0xFF;
+
+    // Przyciemnij każdy kanał RGB
+    r = Math.floor(r * (1 - amount));
+    g = Math.floor(g * (1 - amount));
+    b = Math.floor(b * (1 - amount));
+
+    // Składamy kolor z powrotem
+    const newColor = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    return newColor;
+  }
+
+  const saveButtonColor = mbti?.backgroundColor
+    ? darkenColor(mbti.backgroundColor, 0.3)
+    : '#3568b4'; // albo inny ciemniejszy kolor fallback
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: mbti?.backgroundColor || '#fff' }]}>
@@ -215,19 +259,25 @@ export default function FriendProfile() {
           onChangeText={setNotes}
           placeholder="Dodaj swoje notatki..."
         />
-        <TouchableOpacity style={styles.saveButton} onPress={saveNotes}>
+        <TouchableOpacity
+          style={[styles.saveButton, { backgroundColor: saveButtonColor }]}
+          onPress={saveNotes}
+        >
           <Text style={styles.saveButtonText}>Zapisz notatki</Text>
         </TouchableOpacity>
       </View>
 
       {mbti && (
-        <View style={{ marginTop: 30 }}>
+        <>
           <ScrollView
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             style={styles.cardContainer}
             contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 10 }}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            ref={scrollRef}
           >
             {/* Mocne i słabe strony */}
             <View style={[styles.card, styles.centerContent]}>
@@ -253,11 +303,12 @@ export default function FriendProfile() {
             {/* Statystyki */}
             <View style={styles.card}>
               <Text style={styles.label}>📊 Statystyki MBTI</Text>
-              {renderBar('Introversion', 'Extraversion', mbti.stats?.ie ?? 0.7)}
-              {renderBar('Intuition', 'Sensing', mbti.stats?.ns ?? 0.6)}
-              {renderBar('Thinking', 'Feeling', mbti.stats?.tf ?? 0.5)}
-              {renderBar('Judging', 'Perceiving', mbti.stats?.jp ?? 0.8)}
+              {renderBar('Introversion', 'Extraversion', mbti.stats?.ie ?? 0.7, mbti.backgroundColor || '#4a90e2')}
+              {renderBar('Intuition', 'Sensing', mbti.stats?.ns ?? 0.6, mbti.backgroundColor || '#4a90e2')}
+              {renderBar('Thinking', 'Feeling', mbti.stats?.tf ?? 0.5, mbti.backgroundColor || '#4a90e2')}
+              {renderBar('Judging', 'Perceiving', mbti.stats?.jp ?? 0.8, mbti.backgroundColor || '#4a90e2')}
             </View>
+
 
             {/* Funkcje poznawcze */}
             <View style={[styles.card, styles.centerContent]}>
@@ -281,7 +332,22 @@ export default function FriendProfile() {
               })}
             </View>
           </ScrollView>
-        </View>
+
+          {/* Pasek kropek pod kartami */}
+          <View style={styles.pagination}>
+            {[...Array(4)].map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.dot,
+                  i === activeIndex
+                    ? { backgroundColor: darkenColor(mbti?.backgroundColor || '#4a90e2', 0.3) }
+                    : styles.dotInactive,
+                ]}
+              />
+            ))}
+          </View>
+        </>
       )}
     </SafeAreaView>
   );
@@ -364,7 +430,7 @@ const styles = StyleSheet.create({
   },
   card: {
     alignSelf: 'center',
-    width: 300,
+    width: screenWidth-60, // np. 20px padding z każdej strony
     marginRight: 20,
     padding: 16,
     backgroundColor: '#fff',
@@ -403,5 +469,24 @@ const styles = StyleSheet.create({
     fontSize: 40,
     marginLeft: 8,
     marginTop: -24,
+  },
+
+  // Nowe style dla kropek paginacji
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: -16,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginHorizontal: 6,
+  },
+  dotActive: {
+    backgroundColor: '#4a90e2',
+  },
+  dotInactive: {
+    backgroundColor: '#bbb',
   },
 });

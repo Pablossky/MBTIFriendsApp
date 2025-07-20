@@ -5,6 +5,7 @@ import {
   Alert,
   FlatList,
   Image,
+  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -25,21 +26,16 @@ const STORAGE_FRIENDS_KEY = 'friends_list';
 export default function FriendsList() {
   const router = useRouter();
 
-  const [showAddPanel, setShowAddPanel] = useState(false);
+  const [friends, setFriends] = useState([]);
+  const [avatars, setAvatars] = useState({});
 
-  // Znajomi
-  const [friends, setFriends] = useState([
-    { id: '1', name: 'Paweł', mbti: 'INFP' },
-    { id: '2', name: 'Anna', mbti: 'ENTJ' },
-  ]);
-
-  const [avatars, setAvatars] = useState({}); // { [id]: {headIndex, selectedHairStyle, selectedHairColor, eyeIndex, browIndex, noseIndex, mouthIndex} }
-
+  const [gender, setGender] = useState('other');
+  const [modalVisible, setModalVisible] = useState(false);
   const [name, setName] = useState('');
   const [mbti, setMbti] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Ładowanie znajomych z AsyncStorage na start
+  // Ładowanie znajomych
   useEffect(() => {
     const loadFriends = async () => {
       try {
@@ -47,37 +43,35 @@ export default function FriendsList() {
         if (json !== null) {
           setFriends(JSON.parse(json));
         }
-      } catch (e) {
+      } catch {
         Alert.alert('Błąd ładowania listy znajomych');
       }
     };
     loadFriends();
   }, []);
 
-  // Zapis znajomych do AsyncStorage za każdym razem gdy się zmieniają
+  // Zapisywanie znajomych
   useEffect(() => {
     const saveFriends = async () => {
       try {
         await AsyncStorage.setItem(STORAGE_FRIENDS_KEY, JSON.stringify(friends));
-      } catch (e) {
+      } catch {
         Alert.alert('Błąd zapisu listy znajomych');
       }
     };
     saveFriends();
   }, [friends]);
 
-  // Ładowanie awatarów dla znajomych zgodnie z AvatarEditor
+  // Ładowanie awatarów
   useEffect(() => {
     const loadAvatars = async () => {
       const newAvatars = {};
       for (const friend of friends) {
         try {
           const json = await AsyncStorage.getItem(`@friend_avatar_${friend.id}`);
-          if (json) {
-            newAvatars[friend.id] = JSON.parse(json);
-          } else {
-            // Domyślne wartości pasujące do AvatarEditor
-            newAvatars[friend.id] = {
+          newAvatars[friend.id] = json
+            ? JSON.parse(json)
+            : {
               headIndex: 0,
               selectedHairStyle: 0,
               selectedHairColor: 0,
@@ -86,7 +80,6 @@ export default function FriendsList() {
               noseIndex: 0,
               mouthIndex: 0,
             };
-          }
         } catch {
           newAvatars[friend.id] = {
             headIndex: 0,
@@ -109,15 +102,19 @@ export default function FriendsList() {
       Alert.alert('Uzupełnij oba pola');
       return;
     }
+
     const newFriend = {
       id: Date.now().toString(),
       name: name.trim(),
       mbti: mbti.trim().toUpperCase(),
+      gender,
     };
+
     setFriends((prev) => [...prev, newFriend]);
     setName('');
     setMbti('');
-    setShowAddPanel(false);
+    setGender('Mężczyzna');
+    setModalVisible(false);
   };
 
   const deleteFriend = (id) => {
@@ -165,7 +162,7 @@ export default function FriendsList() {
     >
       {renderAvatar(item.id)}
       <Text style={styles.friendText}>
-        {`${item?.name || 'Nieznany'} - ${item?.mbti || 'Brak typu'}`}
+        {`${item.name} - ${item.mbti}`}
       </Text>
 
       <TouchableOpacity onPress={() => deleteFriend(item.id)} style={styles.deleteBtn}>
@@ -195,55 +192,78 @@ export default function FriendsList() {
           contentContainerStyle={{ flexGrow: 1 }}
         />
 
-        {!showAddPanel && (
-          <View style={styles.addButtonWrapper}>
-            <TouchableOpacity
-              style={styles.addFriendButton}
-              onPress={() => setShowAddPanel(true)}
-            >
-              <Text style={styles.addFriendButtonText}>Dodaj nowego znajomego</Text>
-            </TouchableOpacity>
+        <View style={styles.addButtonWrapper}>
+          <TouchableOpacity
+            style={styles.addFriendButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.addFriendButtonText}>Dodaj nowego znajomego</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* MODAL */}
+        <Modal visible={modalVisible} animationType="slide" transparent>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.title}>Nowy znajomy</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Imię"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Typ MBTI"
+                value={mbti}
+                onChangeText={setMbti}
+                autoCapitalize="characters"
+              />
+
+              <View style={styles.genderSelector}>
+                {['Mężczyzna', 'Kobieta'].map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    style={[
+                      styles.genderOption,
+                      gender === g && styles.genderOptionSelected,
+                    ]}
+                    onPress={() => setGender(g)}
+                  >
+                    <Text style={{ color: gender === g ? 'white' : '#4B2E05' }}>
+                      {g === 'Mężczyzna' ? 'Mężczyzna' : 'Kobieta'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+
+              <TouchableOpacity style={styles.addFriendButton} onPress={addFriend}>
+                <Text style={styles.addFriendButtonText}>Dodaj znajomego</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.addFriendButton, { backgroundColor: '#888' }]}
+                onPress={() => {
+                  setModalVisible(false);
+                  setName('');
+                  setMbti('');
+                  setGender('other');
+                }}
+              >
+                <Text style={[styles.addFriendButtonText, { color: '#eee' }]}>Anuluj</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
-
-        {showAddPanel && (
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="Imię"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Typ MBTI"
-              value={mbti}
-              onChangeText={setMbti}
-              autoCapitalize="characters"
-            />
-            <TouchableOpacity style={styles.addFriendButton} onPress={addFriend}>
-              <Text style={styles.addFriendButtonText}>Dodaj znajomego</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.addFriendButton, { backgroundColor: '#888', marginBottom: 0 }]}
-              onPress={() => {
-                setShowAddPanel(false);
-                setName('');
-                setMbti('');
-              }}
-            >
-              <Text style={[styles.addFriendButtonText, { color: '#eee' }]}>Anuluj</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        </Modal>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F5E1C9' }, // ciepły beż
+  safeArea: { flex: 1, backgroundColor: '#F5E1C9' },
   container: {
     flex: 1,
     paddingVertical: 32,
@@ -254,17 +274,19 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#C1440E', // ceglasty tytuł
+    color: '#C1440E',
+    marginTop: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#D9A441', // musztardowy obramowanie
+    borderColor: '#D9A441',
     padding: 10,
     marginBottom: 10,
     borderRadius: 6,
-    backgroundColor: '#fff9e6', // bardzo jasny musztardowy jako tło inputa
-    color: '#444',
+    backgroundColor: '#F5E1C9',  // bardzo jasne, prawie białe tło
+    color: '#4B2E05',            // ciemny, kontrastujący tekst
   },
+
   friendItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,10 +309,10 @@ const styles = StyleSheet.create({
   friendText: {
     fontSize: 18,
     flex: 1,
-    color: '#4B2E05', // ciemny brąz tekstu
+    color: '#4B2E05',
   },
   deleteBtn: {
-    backgroundColor: '#C1440E', // ceglasty przycisk usuń
+    backgroundColor: '#C1440E',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
@@ -300,7 +322,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   addFriendButton: {
-    backgroundColor: '#C1440E', // ceglasty kolor
+    backgroundColor: '#C1440E',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
@@ -310,5 +332,36 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#F5E1C9',
+    padding: 20,
+    borderRadius: 12,
+    width: '100%',
+  },
+  genderSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  genderOption: {
+    flex: 1,
+    backgroundColor: '#fff9e6',
+    padding: 10,
+    borderRadius: 6,
+    marginHorizontal: 5,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D9A441',
+  },
+  genderOptionSelected: {
+    backgroundColor: '#C1440E',
   },
 });

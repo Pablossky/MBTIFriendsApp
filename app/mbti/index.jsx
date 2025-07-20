@@ -65,11 +65,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: CARD_MARGIN,
   },
   groupTitle: {
-    fontSize: 20,
+    fontSize: 24,          // większa czcionka
     fontWeight: 'bold',
-    color: '#6B4F26', // ceglasty kolor tytułu grupy
+    color: '#6B4F26',      // ceglasty kolor tytułu grupy
     marginBottom: 12,
+    textAlign: 'center',   // wyśrodkowanie tekstu
   },
+
   cardsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -93,7 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#4B2E05',  // ciemny brąz, ciepły i czytelny
-    marginBottom: 6,
   },
   desc: {
     fontSize: 14,
