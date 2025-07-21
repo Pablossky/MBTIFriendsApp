@@ -28,4 +28,14 @@ export const HAIRSTYLES = [
       require('./hair3-c3.png'),
     ],
   },
+  {
+    id: 'hair4',
+    preview: require('./hair4.png'),
+    colors: [
+      require('./hair4-c1.png'),
+      require('./hair4-c2.png'),
+      require('./hair4-c3.png'),
+      require('./hair4-c4.png'),
+    ],
+  },
 ];

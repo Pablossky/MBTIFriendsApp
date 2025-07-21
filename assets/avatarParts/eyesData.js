@@ -6,4 +6,5 @@ export const EYES = [
   require('./eyes5.png'),
   require('./eyes6.png'),
   require('./eyes7.png'),
+  require('./eyes8.png'),
 ];
