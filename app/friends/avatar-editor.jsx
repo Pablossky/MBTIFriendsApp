@@ -13,7 +13,8 @@ const screenWidth = Dimensions.get('window').width;
 const STORAGE_KEY_PREFIX = '@friend_avatar_';
 
 export default function AvatarEditor({ friendId, onAvatarChange }) {
-  const [headIndex, setHeadIndex] = useState(0);
+  const [selectedHeadType, setSelectedHeadType] = useState(0);
+  const [selectedHeadColor, setSelectedHeadColor] = useState(0);
   const [selectedHairStyle, setSelectedHairStyle] = useState(0);
   const [selectedHairColor, setSelectedHairColor] = useState(0);
   const [eyeIndex, setEyeIndex] = useState(0);
@@ -30,7 +31,8 @@ export default function AvatarEditor({ friendId, onAvatarChange }) {
   const saveAvatar = async () => {
     try {
       const data = {
-        headIndex,
+        selectedHeadType,
+        selectedHeadColor,
         selectedHairStyle,
         selectedHairColor,
         eyeIndex,
@@ -54,7 +56,8 @@ export default function AvatarEditor({ friendId, onAvatarChange }) {
       const data = await AsyncStorage.getItem(key);
       if (data) {
         const parsed = JSON.parse(data);
-        setHeadIndex(parsed.headIndex ?? 0);
+        setSelectedHeadType(parsed.selectedHeadType ?? 0);
+        setSelectedHeadColor(parsed.selectedHeadColor ?? 0);
         setSelectedHairStyle(parsed.selectedHairStyle ?? 0);
         setSelectedHairColor(parsed.selectedHairColor ?? 0);
         setEyeIndex(parsed.eyeIndex ?? 0);
@@ -71,7 +74,7 @@ export default function AvatarEditor({ friendId, onAvatarChange }) {
   return (
     <View style={styles.container}>
       <View style={styles.avatarPreview}>
-        <Image source={HEADS[headIndex]} style={styles.layer} />
+        <Image source={HEADS[selectedHeadType]?.colors[selectedHeadColor]} style={styles.layer} />
         <Image source={HAIRSTYLES[selectedHairStyle]?.colors[selectedHairColor]} style={styles.layer} />
         <Image source={EYES[eyeIndex]} style={styles.layer} />
         <Image source={BROWS[browIndex]} style={styles.layer} />
@@ -85,21 +88,44 @@ export default function AvatarEditor({ friendId, onAvatarChange }) {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
         >
-          {/* GŁOWA */}
+          {/* TWARZ */}
           <View style={styles.page}>
-            <Text style={styles.label}>Głowa</Text>
+            <Text style={styles.label}>Typ twarzy</Text>
             <View style={styles.optionsRow}>
-              {HEADS.map((h, i) => (
+              {HEADS.map((head, i) => (
                 <TouchableOpacity
                   key={i}
-                  onPress={() => setHeadIndex(i)}
-                  style={[styles.optionButton, headIndex === i && styles.selected]}
+                  onPress={() => {
+                    setSelectedHeadType(i);
+                    setSelectedHeadColor(0); // reset koloru po zmianie typu
+                  }}
+                  style={[
+                    styles.optionButton,
+                    selectedHeadType === i && styles.selected,
+                  ]}
                 >
-                  <Image source={h} style={styles.optionImage} />
+                  <Image source={head.preview} style={styles.optionImage} />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.label}>Kolor twarzy</Text>
+            <View style={styles.optionsRow}>
+              {HEADS[selectedHeadType]?.colors.map((colorImg, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setSelectedHeadColor(i)}
+                  style={[
+                    styles.optionButton,
+                    selectedHeadColor === i && styles.selected,
+                  ]}
+                >
+                  <Image source={colorImg} style={styles.optionImage} />
                 </TouchableOpacity>
               ))}
             </View>
           </View>
+
 
           {/* FRYZURA */}
           <View style={styles.page}>

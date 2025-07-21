@@ -72,7 +72,8 @@ export default function FriendsList() {
           newAvatars[friend.id] = json
             ? JSON.parse(json)
             : {
-              headIndex: 0,
+              selectedHeadType: 0,
+              selectedHeadColor: 0,
               selectedHairStyle: 0,
               selectedHairColor: 0,
               eyeIndex: 0,
@@ -82,7 +83,8 @@ export default function FriendsList() {
             };
         } catch {
           newAvatars[friend.id] = {
-            headIndex: 0,
+            selectedHeadType: 0,
+            selectedHeadColor: 0,
             selectedHairStyle: 0,
             selectedHairColor: 0,
             eyeIndex: 0,
@@ -142,7 +144,10 @@ export default function FriendsList() {
 
     return (
       <View style={styles.avatarContainer}>
-        <Image source={HEADS[avatar.headIndex]} style={styles.avatarLayer} />
+        <Image 
+          source={HEADS[avatar.selectedHeadType]?.colors?.[avatar.selectedHeadColor]}
+          style={styles.avatarLayer}
+        />
         <Image
           source={HAIRSTYLES[avatar.selectedHairStyle]?.colors[avatar.selectedHairColor]}
           style={styles.avatarLayer}
@@ -283,10 +288,9 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 6,
-    backgroundColor: '#F5E1C9',  // bardzo jasne, prawie białe tło
+    backgroundColor: '#C1440E',  // bardzo jasne, prawie białe tło
     color: '#4B2E05',            // ciemny, kontrastujący tekst
   },
-
   friendItem: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -33,7 +33,8 @@ export default function FriendProfile() {
   const friendId = params.id;
 
   const defaultAvatar = {
-    headIndex: 0,
+    selectedHeadType: 0,
+    selectedHeadColor: 0,
     selectedHairStyle: 0,
     selectedHairColor: 0,
     eyeIndex: 0,
@@ -70,7 +71,8 @@ export default function FriendProfile() {
         if (avatarJson) {
           const parsed = JSON.parse(avatarJson);
           setAvatars({
-            headIndex: parsed.headIndex ?? 0,
+            selectedHeadType: parsed.selectedHeadType ?? 0,
+            selectedHeadColor: parsed.selectedHeadColor ?? 0,
             selectedHairStyle: parsed.selectedHairStyle ?? 0,
             selectedHairColor: parsed.selectedHairColor ?? 0,
             eyeIndex: parsed.eyeIndex ?? 0,
@@ -242,7 +244,7 @@ export default function FriendProfile() {
         onPress={() => router.push(`/friends/${friendId}/edit-avatar`)}
         activeOpacity={0.8}
       >
-        <Image source={HEADS[avatars.headIndex]} style={styles.layer} />
+        <Image source={HEADS[avatars.selectedHeadType]?.colors[avatars.selectedHeadColor]} style={styles.layer} />
         <Image source={HAIRSTYLES[avatars.selectedHairStyle]?.colors[avatars.selectedHairColor]} style={styles.layer} />
         <Image source={EYES[avatars.eyeIndex]} style={styles.layer} />
         <Image source={BROWS[avatars.browIndex]} style={styles.layer} />

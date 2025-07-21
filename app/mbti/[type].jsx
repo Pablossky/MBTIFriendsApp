@@ -55,7 +55,8 @@ export default function MbtiTypeScreen() {
             newAvatars[friend.id] = JSON.parse(json);
           } else {
             newAvatars[friend.id] = {
-              headIndex: 0,
+              selectedHeadType: 0,
+              selectedHeadColor: 0,
               selectedHairStyle: 0,
               selectedHairColor: 0,
               eyeIndex: 0,
@@ -66,7 +67,8 @@ export default function MbtiTypeScreen() {
           }
         } catch {
           newAvatars[friend.id] = {
-            headIndex: 0,
+            selectedHeadType: 0,
+            selectedHeadColor: 0,
             selectedHairStyle: 0,
             selectedHairColor: 0,
             eyeIndex: 0,
@@ -89,7 +91,9 @@ export default function MbtiTypeScreen() {
 
     return (
       <View style={styles.avatarContainer}>
-        <Image source={HEADS[avatar.headIndex]} style={styles.avatarLayer} />
+        <Image
+          source={HEADS[avatar.selectedHeadType]?.colors?.[avatar.selectedHeadColor]}
+          style={styles.avatarLayer} />
         <Image
           source={HAIRSTYLES[avatar.selectedHairStyle]?.colors[avatar.selectedHairColor]}
           style={styles.avatarLayer}
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000',
     lineHeight: 24,
-    
+
   },
   subTitle: {
     fontSize: 20,

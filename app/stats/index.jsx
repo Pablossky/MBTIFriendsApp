@@ -25,11 +25,12 @@ export default function StatsScreen() {
         const friends = json ? JSON.parse(json) : [];
 
         const colors = [
-          '#4a90e2', '#50e3c2', '#f5a623', '#d0021b',
-          '#8b572a', '#417505', '#9013fe', '#b8e986',
-          '#f8e71c', '#7ed321', '#bd10e0', '#ff3366',
-          '#00aaff', '#ffcc00', '#00cc99', '#9966ff',
+          '#A8DADC', '#F6BD60', '#FFADAD', '#B5EAD7',
+          '#cfa26b', '#C9C9FF', '#ebb895', '#E2F0CB',
+          '#FFB5E8', '#D5AAFF', '#C1FBA4', '#FBC4AB',
+          '#FFF5BA', '#B5F4E5', '#FFDEFA', '#AED9E0',
         ];
+        // Jestem dzban jeśli chodzi o kolory, więc idk
 
         const calcChartData = (list) => {
           const counts = {};
@@ -69,7 +70,6 @@ export default function StatsScreen() {
       </SafeAreaView>
     );
   }
-
 
   const chartWidth = Dimensions.get('window').width - 64;
 

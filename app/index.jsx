@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const LOGO_SIZE = width * 0.5; // 30% szerokości ekranu
+const LOGO_SIZE = width * 0.5; // 50% szerokości ekranu
 
 export default function HomeScreen() {
   return (
@@ -47,11 +47,21 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </Link>
 
-          <Link href="/cognitivefunctions" asChild>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Funkcje poznawcze</Text>
-            </TouchableOpacity>
-          </Link>
+          {/* Kontener z dwoma przyciskami obok siebie */}
+          <View style={styles.horizontalButtonsContainer}>
+            <Link href="/cognitivefunctions" asChild>
+              <TouchableOpacity style={styles.smallButton1}>
+                <Text style={styles.buttonText}>Funkcje kognitywne</Text>
+              </TouchableOpacity>
+            </Link>
+
+            <Link href="/communication" asChild>
+              <TouchableOpacity style={styles.smallButton}>
+                <Text style={styles.buttonText}>Typy komunikacji</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
         </View>
       </View>
     </SafeAreaView>
@@ -74,7 +84,7 @@ const styles = StyleSheet.create({
     width: LOGO_SIZE,
     height: LOGO_SIZE,
     marginBottom: 20,
-    
+
     shadowColor: '#6B3E07', // cień w ciepłym odcieniu
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.5,
@@ -86,13 +96,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#8B4513', // ceglany
     marginBottom: 60,
-    textAlign: 'center',
-    
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#D9A441', // musztardowy
-    marginBottom: 40,
     textAlign: 'center',
   },
   buttonsContainer: {
@@ -112,9 +115,46 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 7,
   },
+  horizontalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
+    width: '100%',
+  },
+
+  smallButton: {
+    backgroundColor: '#8B4513',
+    width: '48%',       // około połowa kontenera
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+
+    shadowColor: '#6B3E07',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 7,
+  },
+
+    smallButton1: {
+    backgroundColor: '#8B4513',
+    width: '48%',       // około połowa kontenera
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginRight: '4%', // odstęp między przyciskami
+
+    shadowColor: '#6B3E07',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 7,
+  },
+
   buttonText: {
     color: '#F5E1C9', // jasny tekst na ciemnym tle
     fontSize: 20,
     fontWeight: '600',
+    textAlign: 'center',
   },
 });

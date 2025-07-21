@@ -13,7 +13,7 @@ export default function CognitiveFunctionsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Funkcje poznawcze MBTI</Text>
+        <Text style={styles.title}>Funkcje kognitywne MBTI</Text>
 
         {/* 📘 Panel z wprowadzeniem */}
         <View style={styles.infoPanel}>

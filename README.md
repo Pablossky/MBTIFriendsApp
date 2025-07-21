@@ -1,4 +1,31 @@
-# Welcome to your Expo app 👋
+# MBTI Friends App
+
+Aplikacja mobilna stworzona w Expo, która pozwala tworzyć i przeglądać listę znajomych z ich profilami MBTI wraz z personalizowanymi awatarami.  
+Możesz dodawać nowych znajomych, filtrować ich według typu MBTI, a także zobaczyć szczegółowe opisy i charakterystyki poszczególnych typów osobowości.
+
+---
+
+## Funkcjonalności
+
+- Dodawanie znajomych z imieniem, typem MBTI i płcią
+- Personalizacja awatarów dla każdego znajomego (wiele warstw: twarz, włosy, oczy, brwi, nos, usta)
+- Przeglądanie znajomych według wybranego typu MBTI
+- Szczegółowe opisy typów MBTI wraz z mocnymi i słabymi stronami
+- Statystyki
+- Przechowywanie danych lokalnie przy użyciu AsyncStorage
+
+---
+
+## Technologie
+
+- React Native z Expo
+- AsyncStorage do lokalnego przechowywania danych
+- Expo Router do nawigacji opartej na strukturze plików
+- Modularne zarządzanie grafiką awatarów
+
+---
+
+## Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
